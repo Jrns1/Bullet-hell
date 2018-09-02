@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shooter_Circular : Shooter_WaitUntilSee {
+public class Shooter_Circular : Shooter_Base {
 
     public CircularBulletData[] pattern;
 
@@ -13,7 +13,20 @@ public class Shooter_Circular : Shooter_WaitUntilSee {
             return pattern.Length;
         }
     }
-    
+
+    public override float Time
+    {
+        get
+        {
+            float t = 0;
+            for (int i = 0; i < Length; i++)
+            {
+                t += pattern[i].delay;
+            }
+
+            return t;
+        }
+    }
 
     protected override IBulletData GetBulletData(int index)
     {

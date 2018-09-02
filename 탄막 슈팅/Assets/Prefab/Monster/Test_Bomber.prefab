@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114343262982978298}
   - component: {fileID: 114831179440162142}
   - component: {fileID: 114866915686521114}
+  - component: {fileID: 114813919245754354}
   - component: {fileID: 212287408790771898}
   - component: {fileID: 61356412572677426}
   - component: {fileID: 50407129098899874}
@@ -66,7 +67,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &61356412572677426
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -169,6 +170,17 @@ MonoBehaviour:
   minDstToTarget: 0.2
   marchingTime: 3
   intervalTime: 2
+--- !u!114 &114813919245754354
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1890557676432838}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c375e0bf132cb045a7f4f4b0b5db1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114831179440162142
 MonoBehaviour:
   m_ObjectHideFlags: 1

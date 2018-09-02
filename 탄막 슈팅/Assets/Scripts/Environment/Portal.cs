@@ -45,7 +45,7 @@ public class Portal : MonoBehaviour {
 
         movement.isMoving = true;
         playerCol.enabled = true;
-        PathFinder.Instance.SetMap();
+        MapManager.Instance.EndMoving();
     }
 
 }

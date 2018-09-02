@@ -24,6 +24,7 @@ GameObject:
   - component: {fileID: 114573774859590318}
   - component: {fileID: 114047597361374946}
   - component: {fileID: 114296546071310380}
+  - component: {fileID: 114801970045761014}
   - component: {fileID: 212987969769924744}
   - component: {fileID: 61970339784586912}
   - component: {fileID: 50471302367882614}
@@ -66,7 +67,7 @@ Rigidbody2D:
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
-  m_Constraints: 0
+  m_Constraints: 4
 --- !u!61 &61970339784586912
 BoxCollider2D:
   m_ObjectHideFlags: 1
@@ -158,6 +159,17 @@ MonoBehaviour:
     burstSecond: 1
     bulletCount: 8
     burstBulletSpeed: 6
+--- !u!114 &114801970045761014
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1301380610211326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c375e0bf132cb045a7f4f4b0b5db1f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!212 &212987969769924744
 SpriteRenderer:
   m_ObjectHideFlags: 1

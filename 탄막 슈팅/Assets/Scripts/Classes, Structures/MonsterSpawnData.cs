@@ -18,6 +18,13 @@ public struct MonsterSpawnData
 }
 
 [System.Serializable]
+public struct BossSpawnData
+{
+    public GameObject gameObject;
+    public int regionNumber;
+}
+
+[System.Serializable]
 public struct Region
 {
     public string regionName;

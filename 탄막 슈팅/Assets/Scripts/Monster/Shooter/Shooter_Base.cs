@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using UnityEngine;
 
-public class Shooter_Base : MonoBehaviour
+public class Shooter_Base : IPattern
 {
     public string bulletName;
     public bool isShooting = true;
@@ -13,7 +13,19 @@ public class Shooter_Base : MonoBehaviour
             return 0;
         }
     }
+
+    public override float Time
+    {
+        get
+        {
+            return 0;
+        }
+    }
     
+    public override void TriggerPattern()
+    {
+        StartCoroutine(Attack());
+    }
 
     public virtual IEnumerator Attack()
     {

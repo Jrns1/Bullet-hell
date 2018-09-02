@@ -13,8 +13,9 @@ public class PathFinder : Singleton<PathFinder>
     HeapNode[,] map;
     Vector3Int bottomLeft;
     int gridSizeX, gridSizeY;
+    //Rect mapRect;
 
-    public bool isMapValid;
+    public bool isMapValid = false;
 
     public int MaxSize
     {
@@ -23,7 +24,7 @@ public class PathFinder : Singleton<PathFinder>
             return gridSizeX * gridSizeY;
         }
     }
-    
+
     public void SetMap()
     {
         MapManager mapManager = MapManager.Instance;
@@ -57,6 +58,8 @@ public class PathFinder : Singleton<PathFinder>
         }
 
         isMapValid = true;
+        //mapRect = new Rect(bottomLeft.x, topRight.y, gridSizeX, gridSizeY);
+        //LogMap();
     }
 
     public IEnumerator FindPath(Vector2 startPos, Vector2 targetPos)
@@ -72,6 +75,11 @@ public class PathFinder : Singleton<PathFinder>
 
         HeapNode startNode = GetNodeInWorldPos(startPos);
         HeapNode targetNode = GetNodeInWorldPos(targetPos);
+        if (startNode == null || targetNode == null)
+        {
+            PathRequestManager.Instance.FinishedProcessingPath(null, false);
+            yield break;
+        }
 
         if (startNode != targetNode)
         {
@@ -125,6 +133,9 @@ public class PathFinder : Singleton<PathFinder>
     HeapNode GetNodeInWorldPos(Vector3 worldPos)
     {
         Vector3Int cellPos = tilemaps[0].WorldToCell(worldPos);
+        //if (!mapRect.Contains(cellPos))
+            //return null;
+
         cellPos -= bottomLeft;
         return map[cellPos.x, cellPos.y];
     }
@@ -157,8 +168,10 @@ public class PathFinder : Singleton<PathFinder>
                 {
                     continue;
                 }
-                if (x != 0 && y != 0 &&
-                    !(map[node.gridIndex.x + x, node.gridIndex.y].walkable &&
+                // 1 0 0
+                // 1 n 0
+                // 1 1 1
+                if (!(map[node.gridIndex.x + x, node.gridIndex.y].walkable &&
                     map[node.gridIndex.x, node.gridIndex.y + y].walkable))
                 {
                     continue;
@@ -222,9 +235,9 @@ public class PathFinder : Singleton<PathFinder>
     void LogMap()
     {
         string mapString = "";
-        for (int x = 0; x < gridSizeX; x++)
+        for (int y = 0; y < gridSizeY; y++)
         {
-            for (int y = 0; y < gridSizeY; y++)
+            for (int x = 0; x < gridSizeX; x++)
             {
                 mapString += map[x, y].walkable?"1 ":"0 ";
             }

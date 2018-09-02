@@ -4,30 +4,43 @@ using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using UnityEngine;
 using System.Text;
+using System;
 
-public static class DataManager {
-
+public static class Data
+{
     public static int fileIndex;
 
     public static void Save<T>(T data, string filePath)
     {
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(GetFilePath(filePath));
+        FileStream file = File.Create(filePath);
         bf.Serialize(file, data);
         file.Close();
     }
 
-    public static T Load<T>(string filePath)
+    public static bool Load<T>(string filePath, out T result)
     {
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(GetFilePath(filePath), FileMode.Open);
-        T t = (T)bf.Deserialize(file);
-        file.Close();
 
-        return t;
+        if (File.Exists(filePath))
+        {
+            FileStream file = File.Open(filePath, FileMode.Open);
+            T t = (T)bf.Deserialize(file);
+            file.Close();
+            result = t;
+            return true;
+        }
+
+        result = default(T);
+        return false;
     }
 
-    public static string GetFilePath(string partialPath)
+    public static string DeathPath(string bossName)
+    {
+        return ConvertValid("is" + bossName + "Dead");
+    }
+
+    public static string ConvertValid(string partialPath)
     {
         StringBuilder sb = new StringBuilder();
 
@@ -40,4 +53,5 @@ public static class DataManager {
 
         return sb.ToString();
     }
+
 }

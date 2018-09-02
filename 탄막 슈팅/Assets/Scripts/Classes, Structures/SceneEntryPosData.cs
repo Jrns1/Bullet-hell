@@ -6,7 +6,7 @@ using UnityEngine;
 public struct SceneEntryPosData {
 
     public string lastPortalName;
-    public int regionNum;
+    public short regionNum;
     public Vector2 entryPos;
 
 }

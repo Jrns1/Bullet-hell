@@ -540,6 +540,11 @@ Prefab:
       propertyPath: m_RootOrder
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114847946495420480, guid: 035b2d308e8f787498e02b311327698b,
+        type: 2}
+      propertyPath: tilemaps.Array.data[0]
+      value: 
+      objectReference: {fileID: 1320570565}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 035b2d308e8f787498e02b311327698b, type: 2}
   m_IsPrefabAsset: 0

@@ -2,9 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BossPattern {
+public abstract class IPattern : MonoBehaviour
+{
+    public abstract float Time
+    {
+        get;
+    }
 
-    Shooter_Base shooter;
-    
-    
+    public abstract void TriggerPattern();
+}
+
+public enum MovementType
+{
+    March,
+    Still,
+    GoTo,
+}
+
+[System.Serializable]
+public struct BossPattern
+{
+    public MovementType movement;
+    public IPattern behaviour;
 }

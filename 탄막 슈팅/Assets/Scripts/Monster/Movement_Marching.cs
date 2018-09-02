@@ -4,44 +4,48 @@ using UnityEngine;
 
 public class Movement_Marching : MonoBehaviour
 {
-
+    public Transform target;
     public float speed;
     public float minDstToTarget;
+    public bool isMarching = true;
 
     protected Rigidbody2D rb2d;
+    protected int layerMask;
 
     Coroutine tracker;
-    ContactFilter2D contactFilter;
 
 
     private void Awake()
     {
         rb2d = GetComponent<Rigidbody2D>();
-        contactFilter.useLayerMask = true;
+        if (!target)
+            target = GameManager.Instance.player;
+        layerMask = (1 << LayerMask.NameToLayer("Wall") | 1 << target.gameObject.layer);
     }
 
     protected virtual void OnEnable()
     {
-        StartCoroutine(PathFinder());
+        StartCoroutine(PathUpdater());
     }
 
-    IEnumerator PathFinder()
+    IEnumerator PathUpdater()
     {
-        while (true)
+        yield return new WaitUntil(() => (PathFinder.Instance.isMapValid));
+        while (isActiveAndEnabled)
         {
             RaycastHit2D wallRay = Physics2D.Raycast(
                 transform.position,
-                GameManager.Instance.player.position - transform.position,
-                Vector2.Distance(transform.position, GameManager.Instance.player.position) + 1,
+                target.position - transform.position,
+                Vector2.Distance(transform.position, target.position) + 1,
                 GameManager.Instance.layerMask_Wall);
 
             if (!wallRay)
             {
-                OnPathFound(new Vector2[] { GameManager.Instance.player.position }, true);
+                OnPathFound(new Vector2[] { target.position }, true);
             }
             else
             {
-                PathRequestManager.RequestPath(transform.position, GameManager.Instance.player.position, OnPathFound);
+                PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
             }
 
             yield return new WaitForSeconds(.5f);
@@ -54,16 +58,18 @@ public class Movement_Marching : MonoBehaviour
         float movingCountdown = Vector2.Distance(path[0], transform.position) / speed;
         Vector2 movePerSec = (path[0] - (Vector2)transform.position).normalized * speed;
 
-        while (true)
+        while (isActiveAndEnabled)
         {
             Vector2 currentWaypoint = path[currentIndex];
 
-            RaycastHit2D minDstRay = Physics2D.Raycast(rb2d.position, ((Vector2)GameManager.Instance.player.position - rb2d.position).normalized, minDstToTarget, GameManager.Instance.layerMask_Wall_Player);
+            RaycastHit2D minDstRay = Physics2D.Raycast(rb2d.position, ((Vector2)target.position - rb2d.position).normalized, minDstToTarget, layerMask);
 
-            if (minDstRay.collider && minDstRay.collider.CompareTag("Player")) // 최소 거리 도달
+            if (minDstRay.collider && minDstRay.collider.CompareTag("Player") ||
+                !isMarching) // 최소 거리 도달
             {
                 rb2d.velocity = Vector2.zero;
-                yield break;
+                yield return null;
+                continue;
             }
 
             if (movingCountdown <= 0) // waypoint 도달

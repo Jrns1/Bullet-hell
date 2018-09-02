@@ -19,8 +19,13 @@ public class MonsterHealth : MonoBehaviour {
             health -= collision.GetComponent<Bullet_Player>().damage;
 
             if (health <= 0)
-                ObjectPool.Instance.PushToPool(gameObject);
+                Die();
         }
     }
 
+
+    protected virtual void Die()
+    {
+        ObjectPool.Instance.PushToPool(gameObject);
+    }
 }

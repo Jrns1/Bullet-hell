@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shooter_BurstBullet : Shooter_WaitUntilSee {
+public class Shooter_BurstBullet : Shooter_Base {
 
     public BurstBulletData[] pattern;
 
@@ -11,6 +11,20 @@ public class Shooter_BurstBullet : Shooter_WaitUntilSee {
         get
         {
             return pattern.Length;
+        }
+    }
+
+    public override float Time
+    {
+        get
+        {
+            float t = 0;
+            for (int i = 0; i < Length; i++)
+            {
+                t += pattern[i].delay;
+            }
+
+            return t;
         }
     }
 

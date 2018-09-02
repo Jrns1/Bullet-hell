@@ -2,33 +2,30 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Shooter_WaitUntilSee : Shooter_Base {
+public class ShootWhenSee : MonoBehaviour {
 
     const float sightRange = 20f;
     const float findingDelay = .1f;
 
-    public override IEnumerator Attack()
+    Shooter_Base shooter;
+
+
+    private void Awake()
     {
-        for (int i = 0; i < Length && isShooting; i++)
-        {
-            int last = i > 0 ? i - 1 : Length - 1;
-            if (GetBulletData(last).Delay > 0)
-                yield return StartCoroutine(WaitUntilSeeTarget());
-
-            IBulletData data = GetBulletData(i);
-            Shoot(data);
-
-            if (data.Delay > 0)
-                yield return new WaitForSeconds(data.Delay);
-        }
+        shooter = GetComponent<Shooter_Base>();
     }
+
+    private void OnEnable()
+    {
+        StartCoroutine(WaitUntilSeeTarget());
+    }
+
 
     IEnumerator WaitUntilSeeTarget()
     {
-        while (true)
+        while (isActiveAndEnabled)
         {
-            if (CanSeeTarget())
-                yield break;
+            shooter.isShooting = CanSeeTarget();
             yield return new WaitForSeconds(findingDelay);
         }
     }

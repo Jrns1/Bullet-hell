@@ -39,12 +39,16 @@ public class PlayerMovement : MonoBehaviour {
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         cam = Camera.main;
+        cam.transform.position = transform.position - Vector3.forward * 10;
+
         CameraController cc = cam.GetComponent<CameraController>();
         if (cc)
             cc.traget = gameObject;
+
         MapManager mm = MapManager.Instance;
         if (mm)
-            transform.position = mm.GetScenePosAndSomeFunc(GameManager.Instance.sceneEntryPortalName);
+            mm.InitScene(transform);
+
         isMoving = true;
         collider.enabled = true;
     }

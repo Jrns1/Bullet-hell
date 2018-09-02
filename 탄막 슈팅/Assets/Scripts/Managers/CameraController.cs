@@ -10,8 +10,8 @@ public class CameraController : Singleton<CameraController>
     public float zoomDistance;
     
     private const float ignoreShakingMagnitude = 0.0005f;
+    public Vector3 offset = new Vector3(0, 0, -10);
 
-    Vector3 offset = new Vector3(0, 0, -10);
     Vector3 velocity;
 
     Vector3 originPosition;
