@@ -20,7 +20,7 @@ public class MapManager_Editor : Editor {
 
     private void OnEnable()
     {
-        manager = (MapManager)target;
+        manager = target as MapManager;
         int currentSpeciesCnt = Enum.GetNames(typeof(MonsterName)).Length;
         monsterColors = new Color[monsterSpeciesCnt];
 
@@ -36,14 +36,14 @@ public class MapManager_Editor : Editor {
             {
                 for (int i = 0; i < diff; i++)
                 {
-                    AddToArray<Color>(ref monsterColors, Color.white);
+                    EditorExtension.AddToArray<Color>(ref monsterColors, Color.white);
                 }
             }
             else
             {
                 for (int i = 0; i < diff; i++)
                 {
-                    DeleteFromArray<Color>(ref monsterColors, monsterColors.Length - 1);
+                    EditorExtension.DeleteFromArray<Color>(ref monsterColors, monsterColors.Length - 1);
                 }
             }
 
@@ -67,13 +67,13 @@ public class MapManager_Editor : Editor {
                     if (selectedRegionIndex >= 0 && selectedRegionIndex < manager.regions.Length) // Add monster
                     {
                         Undo.RecordObject(manager, "Add monster");
-                        AddToArray<MonsterSpawnData>(ref manager.regions[selectedRegionIndex].monsters, new MonsterSpawnData(mousePos, 0));
+                        EditorExtension.AddToArray<MonsterSpawnData>(ref manager.regions[selectedRegionIndex].monsters, new MonsterSpawnData(mousePos, 0));
                         Select(selectedRegionIndex, manager.regions[selectedRegionIndex].monsters.Length - 1);
                     }
                     else // Add region
                     {
                         Undo.RecordObject(manager, "Add region");
-                        AddToArray<Region>(ref manager.regions, new Region("Region " + (manager.regions.Length + 1).ToString(), mousePos + Vector2.one, mousePos - Vector2.one));
+                        EditorExtension.AddToArray<Region>(ref manager.regions, new Region("Region " + (manager.regions.Length + 1).ToString(), mousePos + Vector2.one, mousePos - Vector2.one));
                         Select(manager.regions.Length - 1, -1);
                     }
                 }
@@ -116,7 +116,7 @@ public class MapManager_Editor : Editor {
                     else if (rightMouseClick) // delete the monster
                     {
                         Undo.RecordObject(manager, "Delete monster");
-                        DeleteFromArray<MonsterSpawnData>(ref manager.regions[r].monsters, m);
+                        EditorExtension.DeleteFromArray<MonsterSpawnData>(ref manager.regions[r].monsters, m);
                     }
                 }
             }
@@ -130,7 +130,7 @@ public class MapManager_Editor : Editor {
                 rightMouseClick)
             {
                 Undo.RecordObject(manager, "Delete region");
-                DeleteFromArray<Region>(ref manager.regions, r);
+                EditorExtension.DeleteFromArray<Region>(ref manager.regions, r);
                 continue;
             }
 
@@ -197,34 +197,6 @@ public class MapManager_Editor : Editor {
             MonsterSpawnData[] monsterList = manager.regions[selectedRegionIndex].monsters;
             monsterList[selectedMonIndex].name = (MonsterName)EditorGUILayout.EnumPopup(monsterList[selectedMonIndex].name);
         }
-    }
-
-    void AddToArray<T>(ref T[] list, T elementToAdd)
-    {
-        int length = list.Length;
-        T[] newList = new T[length+ 1];
-        for (int i = 0; i < length; i++)
-        {
-            newList[i] = list[i];
-        }
-        newList[length] = elementToAdd;
-        list = newList;
-    }
-
-    void DeleteFromArray<T>(ref T[] list, int indexToDelete)
-    {
-        T[] newList = new T[list.Length - 1];
-        int newListIndex = 0;
-
-        for (int i = 0; i < list.Length; i++)
-        {
-            if (i != indexToDelete)
-            {
-                newList[newListIndex] = list[i];
-                newListIndex++;
-            }
-        }
-        list = newList;
     }
 
     Vector2 GetWorldMousePosition()

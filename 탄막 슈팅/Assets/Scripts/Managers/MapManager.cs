@@ -1,62 +1,60 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.SceneManagement;
 
 public class MapManager : Singleton<MapManager> {
 
-    public Image panel;
-
+    public BossSpawnData boss;
+    public GameObject rainCloud;
     public SceneEntryPosData[] sceneEntryDatas;
     public string[] scenes;
     public Region[] regions;
-    public BossSpawnData boss;
 
     [HideInInspector] public int currentRegionNum = 0;
+    [HideInInspector] public int previousRegionNum = -1;
 
     List<GameObject> spawnedMonsters = new List<GameObject>();
     int previousMonsterCnt = 0;
-    int previousRegionNum = -1;
 
-    const float fadingTime = .5f;
 
     ObjectPool objectPool;
-
 
     private void Awake()
     {
         objectPool = ObjectPool.Instance;
+        if (rainCloud)
+        {
+            Instantiate(rainCloud).transform.SetParent(GameManager.Instance.player);
+        }
     }
 
     private void Start()
     {
-        Instance.Fade(panel, fadingTime, 1, 0);
+        Fader.Instance.Fade(GameManager.Instance.panel, GameManager.FADING_TIME, 1, 0);
     }
 
-    public void InitScene(Transform player)
+    public void InitScene()
     {
         for (int i = 0; i < sceneEntryDatas.Length; i++)
         {
             if (sceneEntryDatas[i].lastPortalName.Equals(GameManager.Instance.sceneEntryPortalName))
             {
-                player.position = sceneEntryDatas[i].entryPos;
+                GameManager.Instance.player.position = sceneEntryDatas[i].entryPos;
 
                 currentRegionNum = sceneEntryDatas[i].regionNum;
                 previousRegionNum = currentRegionNum;
-
-                CameraController.Instance.SetLimit(regions[currentRegionNum].upperRight, regions[currentRegionNum].lowerLeft);
-                PathFinder.Instance.SetMap();
-                SpawnMonsters();
-
-                regions[currentRegionNum].isDiscovered = true;
-                previousMonsterCnt = spawnedMonsters.Count;
-
-                return;
+                break;
             }
         }
 
-        Debug.LogError("Wrong portal name! : " + GameManager.Instance.sceneEntryPortalName);
+        CameraController.Instance.SetLimit(regions[currentRegionNum].upperRight, regions[currentRegionNum].lowerLeft);
+        PathFinder.Instance.SetMap();
+        SpawnMonsters();
+
+        regions[currentRegionNum].isDiscovered = true;
+        previousMonsterCnt = spawnedMonsters.Count;
+
+        //Debug.LogError("Wrong portal name! : " + GameManager.Instance.sceneEntryPortalName);
     }
 
     public void EnterRegion(int regionNumber)
@@ -64,7 +62,7 @@ public class MapManager : Singleton<MapManager> {
         if (regionNumber < 0) // 다른 씬 로드
         {
             int index = -regionNumber - 1;
-            StartCoroutine(EnterScene(scenes[index]));
+            StartCoroutine(GameManager.Instance.EnterScene(scenes[index]));
             return;
         }
 
@@ -75,13 +73,7 @@ public class MapManager : Singleton<MapManager> {
         SpawnMonsters();
     }
 
-    IEnumerator EnterScene(string sceneName)
-    {
-        yield return Instance.Fade(panel, fadingTime);
-        SceneManager.LoadScene(sceneName);
-    }
-
-    public void EndMoving()
+    public void EndEnteringRegion()
     {
         DisposeMonsters();
         PathFinder.Instance.SetMap();
@@ -115,7 +107,7 @@ public class MapManager : Singleton<MapManager> {
 
         if (boss.gameObject &&
             boss.regionNumber == currentRegionNum &&
-            !Data.Load<bool>(Data.DeathPath(boss.gameObject.name), out isAlive))
+            !TestData.Load<bool>(TestData.DeathPath(boss.gameObject.name), out isAlive))
 
             boss.gameObject.SetActive(true);
         

@@ -21,21 +21,21 @@ public class Portal : MonoBehaviour {
     {
         if (collision.CompareTag("Player"))
         {
-            StartCoroutine(MoveTo(GameManager.Instance.player));
-            MapManager.Instance.EnterRegion(regionNumber);
-            GameManager.Instance.sceneEntryPortalName = name;
+            StartCoroutine(MoveTo(GameManager.Instance.player, collision));
         }
     }
 
-    IEnumerator MoveTo(Transform target)
+    IEnumerator MoveTo(Transform target, Collider2D foot)
     {
+        MapManager.Instance.EnterRegion(regionNumber);
+        GameManager.Instance.sceneEntryPortalName = name;
+
         PathFinder.Instance.isMapValid = false;
         PlayerMovement movement = target.GetComponent<PlayerMovement>();
-        Collider2D playerCol = target.GetComponent<Collider2D>();
         float speed = movement.runningSpeed;
 
-        movement.isMoving = false;
-        playerCol.enabled = false;
+        movement.isAllowedToMove = false;
+        foot.enabled = false;
 
         while ((Vector2)target.position != goal)
         {
@@ -43,9 +43,10 @@ public class Portal : MonoBehaviour {
             yield return null;
         }
 
-        movement.isMoving = true;
-        playerCol.enabled = true;
-        MapManager.Instance.EndMoving();
+        movement.isAllowedToMove = true;
+        foot.enabled = true;
+
+        MapManager.Instance.EndEnteringRegion();
     }
 
 }

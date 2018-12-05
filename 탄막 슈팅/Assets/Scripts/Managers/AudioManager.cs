@@ -4,20 +4,13 @@ using System.Collections.Generic;
 
 public class AudioManager : Singleton<AudioManager> {
 
-    [SerializeField] Music[] musics;
+    [SerializeField] MusicSource[] musics;
     [SerializeField] SoundEffect[] soundEffects;
 
-    public const float soundEffectDelay = .1f;
+    public const float SFX_DELAY = .1f;
+    
 
     private void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    private void Start()
     {
         for (int i = 0; i < musics.Length; i++)
         {
@@ -44,15 +37,15 @@ public class AudioManager : Singleton<AudioManager> {
         Debug.LogWarning("No sound named " + _name + " found");
     }
 
-    public void PlayMusic(string _name, float time=0f)
+    public void PlayMusic(string _name, float fadingTime=0f)
     {
         for (int i = 0; i < musics.Length; i++)
         {
             if (musics[i].name.Equals(_name))
             {
                 musics[i].Play();
-                if (time > 0)
-                    StartCoroutine(FadeInCo(musics[i], time));
+                if (fadingTime > 0)
+                    StartCoroutine(FadeInCo(musics[i], fadingTime));
 
                 return;
             }
@@ -62,14 +55,14 @@ public class AudioManager : Singleton<AudioManager> {
         Debug.LogWarning("No sound named " + _name + " found");
     }
 
-    public void StopMusic(string _name, float time=0f)
+    public void StopMusic(string _name, float fadingTime=0f)
     {
         for (int i = 0; i < musics.Length; i++)
         {
             if (musics[i].name.Equals(_name))
             {
-                if (time > 0)
-                    StartCoroutine(FadeOutCo(musics[i], time));
+                if (fadingTime > 0)
+                    StartCoroutine(FadeOutCo(musics[i], fadingTime));
                 else
                     musics[i].Stop();
                 
@@ -81,7 +74,7 @@ public class AudioManager : Singleton<AudioManager> {
         Debug.LogWarning("No sound named " + _name + " found");
     }
     
-    private IEnumerator FadeInCo(Music sound, float time)
+    private IEnumerator FadeInCo(MusicSource sound, float time)
     {
         float t = 0;
         float originalVolume = sound.volume;
@@ -96,7 +89,7 @@ public class AudioManager : Singleton<AudioManager> {
         sound.CurrentVolume = originalVolume;
     }
 
-    private IEnumerator FadeOutCo(Music sound, float time)
+    private IEnumerator FadeOutCo(MusicSource sound, float time)
     {
         float t = time;
         float originalVolume = sound.volume;

@@ -6,7 +6,8 @@ public class SpeakableObject : InteractiveObject {
 
     protected override void Interact()
     {
-        StartCoroutine(DialogueManager.Instance.StartDialogue());
+        StartCoroutine(SpeechBubble.Instance.StartDialogue());
+        base.Interact();
     }
 
 }

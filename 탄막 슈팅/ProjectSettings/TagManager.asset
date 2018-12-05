@@ -5,7 +5,8 @@ TagManager:
   serializedVersion: 2
   tags:
   - Wall
-  - Bullet
+  - Enemy's Bullet
+  - Player's Bullet
   - Monster
   layers:
   - Default
@@ -16,12 +17,12 @@ TagManager:
   - UI
   - 
   - 
-  - Wall
-  - Player
+  - Upper Wall
+  - Lower Wall
+  - Foot
+  - 
+  - Creature
   - Bullet
-  - Monster
-  - Player's Bullet
-  - Object
   - 
   - 
   - 
@@ -44,11 +45,14 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Creatures
+  - name: Main
     uniqueID: 2618698121
     locked: 0
   - name: Bullet
     uniqueID: 2172906123
+    locked: 0
+  - name: Effects
+    uniqueID: 380992783
     locked: 0
   - name: Roof
     uniqueID: 3670925431

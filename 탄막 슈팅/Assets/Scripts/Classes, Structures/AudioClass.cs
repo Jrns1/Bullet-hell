@@ -15,7 +15,7 @@ public class Sound
 }
 
 [System.Serializable]
-public class Music : Sound
+public class MusicSource : Sound
 {
     public bool loop = false;
 
@@ -92,7 +92,7 @@ public class SoundEffect : Sound
         }
         AudioManager.Instance.StartCoroutine(Enqueue(source));
 
-        allowedTime = Time.time + AudioManager.soundEffectDelay;
+        allowedTime = Time.time + AudioManager.SFX_DELAY;
         source.volume = volume * (1 + Random.Range(-randomVolume / 2, randomVolume / 2));
         source.pitch = pitch * (1 + Random.Range(-randomPitch / 2, randomPitch / 2));
 

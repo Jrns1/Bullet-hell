@@ -6,7 +6,7 @@ using UnityEngine;
 using System.Text;
 using System;
 
-public static class Data
+public static class TestData
 {
     public static int fileIndex;
 

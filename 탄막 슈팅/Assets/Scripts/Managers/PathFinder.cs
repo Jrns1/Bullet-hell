@@ -24,7 +24,7 @@ public class PathFinder : Singleton<PathFinder>
             return gridSizeX * gridSizeY;
         }
     }
-
+    
     public void SetMap()
     {
         MapManager mapManager = MapManager.Instance;
@@ -164,24 +164,20 @@ public class PathFinder : Singleton<PathFinder>
         {
             for (int y = -1; y <= 1; y++)
             {
-                if (x == 0 && y == 0)
-                {
-                    continue;
-                }
-                // 1 0 0
-                // 1 n 0
-                // 1 1 1
-                if (!(map[node.gridIndex.x + x, node.gridIndex.y].walkable &&
-                    map[node.gridIndex.x, node.gridIndex.y + y].walkable))
-                {
-                    continue;
-                }
                 int checkX = node.gridIndex.x + x;
                 int checkY = node.gridIndex.y + y;
 
-                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                if (!(x == 0 && y == 0)
+                    && // grid범위 안
+                    checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY
+                    && // 확인 지점 walkable 여부
+                    map[checkX, node.gridIndex.y].walkable &&
+                    map[node.gridIndex.x, checkY].walkable &&
+                    map[checkX, checkY].walkable
+                    )
                 {
                     neighbours.Add(map[checkX, checkY]);
+                    
                 }
             }
         }
@@ -228,6 +224,7 @@ public class PathFinder : Singleton<PathFinder>
                 directionOld = directionNew;
             }
         }
+        waypoints.Add(path[path.Count - 1].position + new Vector3(.5f, .5f, 0)); // ***********************
         return waypoints.ToArray();
     }
 

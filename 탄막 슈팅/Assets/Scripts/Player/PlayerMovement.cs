@@ -7,26 +7,21 @@ public class PlayerMovement : MonoBehaviour {
 
     public float runningSpeed;
     public float walkingSpeed;
-    public bool isMoving;
-
-    float speed;
+    public bool isAllowedToMove;
 
     ContactFilter2D contactFilter;
-    Collider2D[] buffer;
-
 
     Rigidbody2D rb2d;
-    new BoxCollider2D collider;
     Camera cam;
 
+    float speed;
+    Vector2 input;
 
     private void Awake()
     {
         speed = runningSpeed;
 
         rb2d = GetComponent<Rigidbody2D>();
-        collider = GetComponent<BoxCollider2D>();
-        buffer = new Collider2D[8];
 
         contactFilter = new ContactFilter2D();
         contactFilter.useTriggers = false;
@@ -36,35 +31,13 @@ public class PlayerMovement : MonoBehaviour {
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        cam = Camera.main;
-        cam.transform.position = transform.position - Vector3.forward * 10;
-
-        CameraController cc = cam.GetComponent<CameraController>();
-        if (cc)
-            cc.traget = gameObject;
-
-        MapManager mm = MapManager.Instance;
-        if (mm)
-            mm.InitScene(transform);
-
-        isMoving = true;
-        collider.enabled = true;
-    }
-
     private void OnDisable()
     {
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
-
     void Update () {
-        if (!isMoving)
-            return;
-        
-        Vector2 input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
-        rb2d.MovePosition(rb2d.position + input * speed * Time.deltaTime);
+        input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -77,13 +50,28 @@ public class PlayerMovement : MonoBehaviour {
         }
     }
 
-    void Teleport()
+    private void FixedUpdate()
     {
-        Vector2 desiredPos = cam.ScreenToWorldPoint(Input.mousePosition);
-        
-        if (Physics2D.OverlapBox(desiredPos, collider.size, 0, contactFilter, buffer) > 0)
+        if (!isAllowedToMove)
             return;
-        
-        rb2d.position = desiredPos;
+
+        rb2d.MovePosition(rb2d.position + input * speed * Time.deltaTime);
+    }
+
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        cam = Camera.main;
+        cam.transform.position = transform.position - Vector3.forward * 10;
+
+        CameraController cc = cam.GetComponent<CameraController>();
+        if (cc)
+            cc.target = transform;
+
+        MapManager mm = MapManager.Instance;
+        if (mm)
+            mm.InitScene();
+
+        isAllowedToMove = true;
+        transform.GetChild(0).GetComponent<BoxCollider2D>().enabled = true;
     }
 }

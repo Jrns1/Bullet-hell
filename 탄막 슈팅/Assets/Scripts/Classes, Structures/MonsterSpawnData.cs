@@ -2,6 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+public enum MonsterName
+{
+    Test,
+    Test_Bouncy,
+    Test_Burst,
+    Test_Bomber,
+    Test_Triple
+}
+
 [System.Serializable]
 public struct MonsterSpawnData
 {
@@ -41,12 +51,4 @@ public struct Region
         isDiscovered = false;
         monsters = new MonsterSpawnData[0];
     }
-}
-
-public enum MonsterName
-{
-    Test,
-    Test_Bouncy,
-    Test_Burst,
-    Test_Bomber
 }
