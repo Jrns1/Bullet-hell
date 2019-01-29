@@ -33,7 +33,7 @@ public static class EditorExtension
         }
         list = newList;
     }
-    public static void Handle(this MonoBehaviour mono, ref Vector2 pos, float size, string undoName, string saveName)
+    public static void Handle(this MonoBehaviour mono, ref Vector2 pos, float size, string undoName)
     {
         Vector2 newPos = Handles.FreeMoveHandle(pos, Quaternion.identity, size, Vector2.one, Handles.CylinderHandleCap);
         if (pos != newPos)

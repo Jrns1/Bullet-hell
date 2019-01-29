@@ -12,14 +12,7 @@ public class Bullet_Burst : Bullet_Base {
 
     private void OnEnable()
     {
-        StartCoroutine(BurstTimer());
-    }
-
-    IEnumerator BurstTimer()
-    {
-        yield return null; // Wait for setting variables
-        yield return new WaitForSeconds(burstSec);
-        Burst();
+        GameManager.Ins.Delay(Burst, burstSec);
     }
 
     public override void OnCollisionWithTarget()
@@ -34,15 +27,15 @@ public class Bullet_Burst : Bullet_Base {
 
     void Burst()
     {
-        Vector2 direction = (GameManager.Instance.player.position - transform.position).normalized;
+        Vector2 direction = (GameManager.Ins.player.position - transform.position).normalized;
         float degreePerBullet = 360 / cnt;
         for (float degree = 0; degree < 360; degree += degreePerBullet)
         {
-            GameObject bullet = ObjectPool.Instance.PopFromPool(bulletName, transform.position);
-            bullet.GetComponent<Rigidbody2D>().velocity = GameManager.Instance.RotateDirection(direction, degree) * speed;
+            GameObject bullet = ObjectPool.Ins.PopFromPool(bulletName, transform.position);
+            bullet.GetComponent<Rigidbody2D>().velocity = GameManager.Ins.RotateDirection(direction, degree) * speed;
         }
 
-        ObjectPool.Instance.PushToPool(gameObject);
+        Kill();
     }
 
 }

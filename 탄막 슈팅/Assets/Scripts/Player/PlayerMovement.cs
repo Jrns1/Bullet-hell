@@ -6,26 +6,23 @@ using UnityEngine.SceneManagement;
 public class PlayerMovement : MonoBehaviour {
 
     public float runningSpeed;
-    public float walkingSpeed;
-    public bool isAllowedToMove;
+    public float dashSpeed;
+    public float dashDst;
 
-    ContactFilter2D contactFilter;
+    const float linearDrag = 10f;
 
     Rigidbody2D rb2d;
+    new BoxCollider2D collider;
     Camera cam;
 
-    float speed;
     Vector2 input;
+    bool isDashing;
+
 
     private void Awake()
     {
-        speed = runningSpeed;
-
         rb2d = GetComponent<Rigidbody2D>();
-
-        contactFilter = new ContactFilter2D();
-        contactFilter.useTriggers = false;
-        contactFilter.SetLayerMask(1 << LayerMask.NameToLayer("Wall"));
+        collider = GetComponent<BoxCollider2D>();
 
         cam = Camera.main;
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -37,41 +34,58 @@ public class PlayerMovement : MonoBehaviour {
     }
 
     void Update () {
+        if (isDashing)
+            return;
+
         input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 
-        if (Input.GetMouseButtonDown(1))
+        if (Input.GetMouseButtonDown(1) && input != Vector2.zero)
         {
-            if (speed == runningSpeed)
-                speed = walkingSpeed;
-            else
-                speed = runningSpeed;
-
-            //Teleport();
+            StartCoroutine(Dodge());
         }
     }
 
     private void FixedUpdate()
     {
-        if (!isAllowedToMove)
+        if (GameManager.Ins.isActionInhibited)
             return;
 
-        rb2d.MovePosition(rb2d.position + input * speed * Time.deltaTime);
+        rb2d.MovePosition(rb2d.position + input * (isDashing ? dashSpeed : runningSpeed) * Time.deltaTime);
     }
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (scene.name.Equals("Primary Loading"))
+            return;
+
         cam = Camera.main;
         cam.transform.position = transform.position - Vector3.forward * 10;
 
-        CameraController cc = cam.GetComponent<CameraController>();
-        if (cc)
-            cc.target = transform;
+        CameraController.Ins.target = transform;
 
-        MapManager mm = MapManager.Instance;
-        if (mm)
-            mm.InitScene();
+        MapManager.Ins.InitScene();
 
-        isAllowedToMove = true;
-        transform.GetChild(0).GetComponent<BoxCollider2D>().enabled = true;
+        GameManager.Ins.isActionInhibited = false;
+    }
+
+    IEnumerator Dodge()
+    {
+        isDashing = true;
+        collider.enabled = false;
+
+        yield return new WaitForSeconds(dashDst / dashSpeed);
+        Vector2 tmp = transform.position;
+
+        collider.enabled = true;
+
+        //Vector2 drag = new Vector2(input.x, input.y) * linearDrag;
+        //while (input.sqrMagnitude > .1f)
+        //{
+        //    input -= drag * Time.deltaTime;
+        //    yield return null;
+        //}
+        //input = Vector2.zero;
+
+        isDashing = false;
     }
 }

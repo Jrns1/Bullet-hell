@@ -30,24 +30,22 @@ public class BossBrain : MonoBehaviour {
     IEnumerator ShowUp()
     {
         //yield return new WaitForSeconds(2);
-        Transform player = GameManager.Instance.player;
-        Transform cam = Camera.main.transform;
 
-        player.GetComponent<PlayerMovement>().isAllowedToMove = false;
+        GameManager.Ins.isActionInhibited = true;
         GetComponent<Movement_Marching>().isMarching = false;
 
-        CameraController.Instance.target = transform;
+        CameraController.Ins.target = transform;
         yield return new WaitForSeconds(LOCKON_TIME/2);
 
         //image.SetActive(true); // 등장 일러스트 enable
-        PathController.Instance.Shut(tilesToShut);
+        PathController.Ins.Shut(tilesToShut);
         yield return new WaitForSeconds(LOCKON_TIME/2);
         //image.SetActive(false); // 등장 일러스트 disable
 
-        CameraController.Instance.target = GameManager.Instance.player;
+        CameraController.Ins.target = GameManager.Ins.player;
         yield return new WaitForSeconds(LOCKON_TIME/3);
 
-        player.GetComponent<PlayerMovement>().isAllowedToMove = true;
+        GameManager.Ins.isActionInhibited = false;
         GetComponent<Movement_Marching>().isMarching = true;
 
         StartCoroutine(PatternIterator());
@@ -66,30 +64,28 @@ public class BossBrain : MonoBehaviour {
             {
                 case MovementType.March:
                     movement.isMarching = true;
-                    movement.target = GameManager.Instance.player;
-
+                    movement.target = GameManager.Ins.player;
                     yield return new WaitForSeconds(pattern.behaviour.Time + delayBetweenPatterns);
                     break;
+
                 case MovementType.Still:
                     movement.isMarching = false;
-                    movement.target = GameManager.Instance.player;
-
+                    movement.target = GameManager.Ins.player;
                     yield return new WaitForSeconds(pattern.behaviour.Time + delayBetweenPatterns);
                     break;
+
                 case MovementType.GoTo:
                     movement.isMarching = true;
                     movement.target = pos;
 
                     if (pattern.behaviour == null)
                     {
-                        yield return new WaitUntil(() => GameManager.IsNear(transform.position, pos.position, 0.05f));
+                        yield return new WaitUntil(() => (transform.position - pos.position).sqrMagnitude < 0.05f);
                     }
                     else
                     {
                         float goal = Time.time + pattern.behaviour.Time + delayBetweenPatterns;
-
-                        yield return new WaitUntil(() => (
-                        GameManager.IsNear(transform.position, pos.position, 0.05f) && Time.time > goal)); // Time.time이 timescale에 영향을 받더라 -> esc 고려 x
+                        yield return new WaitUntil(() => (transform.position - pos.position).sqrMagnitude < 0.05f && Time.time > goal);
                     }
                     break;
             }

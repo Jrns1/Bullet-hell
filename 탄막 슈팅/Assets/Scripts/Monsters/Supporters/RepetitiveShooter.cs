@@ -8,17 +8,17 @@ public class RepetitiveShooter : IPattern {
     {
         get
         {
-            return shooter.Time * repeat;
+            return pattern.Time * repeat;
         }
     }
 
     public int repeat;
 
-    Shooter_Base shooter;
+    IPattern pattern;
 
     private void Awake()
     {
-        shooter = GetComponent<Shooter_Base>();
+        pattern = GetComponent<IPattern>();
     }
 
     public override void TriggerPattern()
@@ -30,8 +30,8 @@ public class RepetitiveShooter : IPattern {
     {
         for (int i = 0; i < repeat; i++)
         {
-            yield return new WaitUntil(() => (shooter.isShooting));
-            yield return StartCoroutine(shooter.Attack());
+            pattern.TriggerPattern();
+            yield return new WaitForSeconds(pattern.Time);
         }
     }
 

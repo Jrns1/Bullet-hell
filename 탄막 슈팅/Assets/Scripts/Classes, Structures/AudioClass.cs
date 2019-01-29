@@ -70,7 +70,7 @@ public class SoundEffect : Sound
     {
         sources = new Queue<AudioSource>();
         sourceObject = new GameObject(name);
-        sourceObject.transform.SetParent(AudioManager.Instance.transform);
+        sourceObject.transform.SetParent(AudioManager.Ins.transform);
     }
 
     public void Play()
@@ -90,18 +90,15 @@ public class SoundEffect : Sound
         {
             source = sources.Dequeue();
         }
-        AudioManager.Instance.StartCoroutine(Enqueue(source));
+        GameManager.Ins.Delay(
+            () => sources.Enqueue(source),
+            source.clip.length
+            );
 
         allowedTime = Time.time + AudioManager.SFX_DELAY;
         source.volume = volume * (1 + Random.Range(-randomVolume / 2, randomVolume / 2));
         source.pitch = pitch * (1 + Random.Range(-randomPitch / 2, randomPitch / 2));
 
         source.Play();
-    }
-
-    IEnumerator Enqueue(AudioSource source)
-    {
-        yield return new WaitForSeconds(source.clip.length);
-        sources.Enqueue(source);
     }
 }

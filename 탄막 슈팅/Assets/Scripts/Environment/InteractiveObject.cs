@@ -4,16 +4,26 @@ using UnityEngine;
 
 public class InteractiveObject : MonoBehaviour {
 
-    const float INTERACTIVE_DISTANCE = .8f;
 
-	void Update () {
-        if (Input.GetKeyDown(KeyCode.E) && GameManager.IsNear(GameManager.Instance.player.position, transform.position, INTERACTIVE_DISTANCE) && GameManager.Instance.isInteractionAllowed)
-        {
-            GameManager.Instance.isInteractionAllowed = false;
-            Interact();
-        }
-	}
+    protected virtual void OnEnable()
+    {
+        Interactor.interactants.Add(transform);
+    }
 
-    protected virtual void Interact() { GameManager.Instance.isInteractionAllowed = true; }
+    protected virtual void OnDisable()
+    {
+        Interactor.interactants.Remove(transform);
+    }
 
+    public virtual void Interact()
+    {
+        GameManager.Ins.isInteractionAllowed = false;
+        Interactor.interactants.Remove(transform);
+    }
+
+    protected void CompeleteInteraction()
+    {
+        GameManager.Ins.isInteractionAllowed = true;
+        GameManager.Ins.Delay(() => Interactor.interactants.Add(transform), 2);
+    }
 }

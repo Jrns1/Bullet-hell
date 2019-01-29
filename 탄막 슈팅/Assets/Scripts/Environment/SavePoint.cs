@@ -6,10 +6,14 @@ public class SavePoint : InteractiveObject {
 
     public SavePointData savePoint;
 
-    protected override void Interact()
+    public override void Interact()
     {
+        base.Interact();
+
         Debug.Log("Save");
-        GameManager.Instance.savePoint = savePoint;
+        GameManager.Ins.savePoint = savePoint;
+
+        CompeleteInteraction();
     }
 
 }

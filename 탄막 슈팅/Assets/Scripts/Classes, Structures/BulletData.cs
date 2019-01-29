@@ -21,7 +21,7 @@ public struct LinearBulletData : IBulletData
 }
 
 [Serializable]
-public struct CircularBulletData : IBulletData
+public struct AngularBulletData : IBulletData
 {
     public float delay;
     public float Delay

@@ -4,25 +4,24 @@ using UnityEngine;
 
 public class ObjectPool : Singleton<ObjectPool> {
 
-    [System.Serializable]
-    public class Pool
-    {
-        public string name;
-        //public string tag;
+    //[System.Serializable]
+    //public struct Pool
+    //{
+    //    public string tag;
 
-        public GameObject prefab;
-    }
+    //    public GameObject prefab;
+    //}
 
-    public List<Pool> pools;
+    public GameObject[] prefabs;
     public Dictionary<string, Queue<GameObject>> poolDictionary;
 
     private void Awake()
     {
         poolDictionary = new Dictionary<string, Queue<GameObject>>();
 
-        for (int i = 0; i < pools.Count; i++)
+        for (int i = 0; i < prefabs.Length; i++)
         {
-            poolDictionary.Add(pools[i].name, new Queue<GameObject>());
+            poolDictionary.Add(prefabs[i].name, new Queue<GameObject>());
         }
     }
 
@@ -53,12 +52,12 @@ public class ObjectPool : Singleton<ObjectPool> {
 
     private GameObject CreateObj(string name, Vector2 position)
     {
-        for (int i = 0; i < pools.Count; i++)
+        for (int i = 0; i < prefabs.Length; i++)
         {
-            if (pools[i].name == name)
+            if (prefabs[i].name == name)
             {
-                GameObject item = Instantiate(pools[i].prefab, position, Quaternion.identity);
-                item.name = pools[i].name;
+                GameObject item = Instantiate(prefabs[i], position, Quaternion.identity);
+                item.name = prefabs[i].name;
                 //item.tag = pools[i].tag;
                 return item;
             }

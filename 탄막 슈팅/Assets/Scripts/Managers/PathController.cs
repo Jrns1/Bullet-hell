@@ -15,7 +15,7 @@ public class PathController : Singleton<PathController> {
         foreach (Vector3Int location in locations)
         {
             tilemap.SetTile(location, wall);
-            GameManager.Instance.Particle(DUSTNAME, (Vector3)location);
+            GameManager.Ins.Particle(DUSTNAME, (Vector3)location);
         }
     }
 
@@ -24,7 +24,7 @@ public class PathController : Singleton<PathController> {
         foreach (Vector3Int location in locations)
         {
             tilemap.SetTile(location, null);
-            GameManager.Instance.Particle(DUSTNAME, (Vector3)location);
+            GameManager.Ins.Particle(DUSTNAME, (Vector3)location);
         }
     }
 }

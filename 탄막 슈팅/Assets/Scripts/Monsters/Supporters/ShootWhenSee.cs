@@ -4,16 +4,11 @@ using UnityEngine;
 
 public class ShootWhenSee : MonoBehaviour {
 
-    const float SIGHT = 20f;
+    public IPattern shooter;
+    public float sqrSight = 400f; // 20 * 20
+
     const float FINDING_DELAY = .1f;
 
-    Shooter_Base shooter;
-
-
-    private void Awake()
-    {
-        shooter = GetComponent<Shooter_Base>();
-    }
 
     private void OnEnable()
     {
@@ -25,15 +20,17 @@ public class ShootWhenSee : MonoBehaviour {
     {
         while (isActiveAndEnabled)
         {
-            shooter.isShooting = CanSeeTarget();
-            yield return new WaitForSeconds(FINDING_DELAY);
+            yield return new WaitUntil(CanSeeTarget);
+            GameManager.Ins.Delay(() => shooter.isActive = true, 1f);
+            yield return new WaitWhile(CanSeeTarget);
+            shooter.isActive = false;
         }
     }
 
     bool CanSeeTarget()
     {
-        RaycastHit2D ray = Physics2D.Raycast(transform.position, GameManager.Instance.player.position - transform.position, Vector2.Distance(GameManager.Instance.player.position, transform.position), GameManager.Instance.layerMask_Wall);
-        if (!ray.collider && GameManager.IsNear(GameManager.Instance.player.position, transform.position, SIGHT))
+        RaycastHit2D ray = Physics2D.Raycast(transform.position, GameManager.Ins.player.position - transform.position, Vector2.Distance(GameManager.Ins.player.position, transform.position), GameManager.Ins.layerMask_Wall);
+        if (!ray.collider && (GameManager.Ins.player.position - transform.position).sqrMagnitude < sqrSight)
             return true;
         return false;
     }

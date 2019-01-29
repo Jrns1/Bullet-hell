@@ -56,16 +56,16 @@ public class PlayerHealth : MonoBehaviour {
     void RestartFromSP()
     {
         SceneManager.sceneLoaded += MoveToSP;
-        GameManager.Instance.sceneEntryPortalName = null;
-        StartCoroutine(GameManager.Instance.EnterScene(GameManager.Instance.savePoint.sceneName));
+        GameManager.Ins.sceneEntryPortalName = null;
+        StartCoroutine(GameManager.Ins.EnterScene(GameManager.Ins.savePoint.sceneName));
     }
 
     void MoveToSP(Scene scene, LoadSceneMode loadSceneMode)
     {
         SceneManager.sceneLoaded -= MoveToSP;
 
-        SavePointData sp = GameManager.Instance.savePoint;
-        MapManager mapManager = MapManager.Instance;
+        SavePointData sp = GameManager.Ins.savePoint;
+        MapManager mapManager = MapManager.Ins;
 
         transform.position = sp.position;
         mapManager.currentRegionNum = sp.regionNum;

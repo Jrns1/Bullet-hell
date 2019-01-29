@@ -6,9 +6,9 @@ public class BossHealth : MonsterHealth {
 
     protected override void Die()
     {
-        TestData.Save<bool>(true, TestData.DeathPath(name));
+        DataManager.Ins.Save<bool>(true, name);
         gameObject.SetActive(false);
-        PathController.Instance.Free(GetComponent<BossBrain>().tilesToShut);
+        PathController.Ins.Free(GetComponent<BossBrain>().tilesToShut);
     }
 
 }

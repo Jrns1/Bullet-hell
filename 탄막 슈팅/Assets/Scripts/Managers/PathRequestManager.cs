@@ -13,8 +13,8 @@ public class PathRequestManager : Singleton<PathRequestManager>
     public static void RequestPath(Vector2 pathStart, Vector2 pathEnd, Action<Vector2[], bool> callback)
     {
         PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
-        Instance.pathRequestQueue.Enqueue(newRequest);
-        Instance.TryProcessNext();
+        Ins.pathRequestQueue.Enqueue(newRequest);
+        Ins.TryProcessNext();
     }
 
     void TryProcessNext()
@@ -23,7 +23,7 @@ public class PathRequestManager : Singleton<PathRequestManager>
         {
             currentPathRequest = pathRequestQueue.Dequeue();
             isProcessingPath = true;
-            StartCoroutine(PathFinder.Instance.FindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd));
+            StartCoroutine(PathFinder.Ins.FindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd));
         }
     }
 

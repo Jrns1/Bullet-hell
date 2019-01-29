@@ -1,22 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using System;
 
 public class GameManager : Singleton<GameManager> {
 
     public Transform player;
+    public bool isActionInhibited;
     public Image panel;
     public string sceneEntryPortalName;
     public SavePointData savePoint;
 
     [HideInInspector] public int layerMask_Wall;
-    public const float FADING_TIME = .5f;
 
     [HideInInspector] public bool isPauseAllowed = true;
     [HideInInspector] public bool isInteractionAllowed = true;
+
+    public const float FADING_TIME = .5f;
 
     bool pause = false;
 
@@ -31,7 +33,7 @@ public class GameManager : Singleton<GameManager> {
         if (Input.GetKeyDown(KeyCode.Escape) && isPauseAllowed)
         {
             pause = !pause;
-            player.GetComponent<PlayerMovement>().isAllowedToMove = !pause;
+            GameManager.Ins.isActionInhibited = !pause;
 
             if (pause)
             {
@@ -46,15 +48,22 @@ public class GameManager : Singleton<GameManager> {
 
     public IEnumerator EnterScene(string sceneName)
     {
-        yield return Fader.Instance .Fade(Instance.panel, FADING_TIME);
+        yield return Fader.Ins.Fade(panel, FADING_TIME, 0, 1);
         if (sceneName != null)
             SceneManager.LoadScene(sceneName);
     }
 
     #region Functions
-    public IEnumerator Delay(Action action)
+    public static readonly Func<float, float> Sqr = (x) => x * x;
+    
+    public Coroutine Delay(Action action, float t = 0)
     {
-        yield return null;
+        return StartCoroutine(DelayCo(action, t));
+    }
+
+    IEnumerator DelayCo(Action action, float t)
+    {
+        yield return new WaitForSeconds(t);
         action();
     }
 
@@ -67,12 +76,12 @@ public class GameManager : Singleton<GameManager> {
     public IEnumerator Remover(GameObject gameObject, Func<bool> Predicate)
     {
         yield return new WaitUntil(Predicate);
-        ObjectPool.Instance.PushToPool(gameObject);
+        ObjectPool.Ins.PushToPool(gameObject);
     }
 
-    public WaitUntil WaitForAnimation(Animator animator, string animation, Func<float, bool> func)
+    public WaitUntil WaitForAnimation(Animator animator, string animation, Func<float, bool> waitAnimation)
     {
-        return new WaitUntil(() => (func(animator.GetCurrentAnimatorStateInfo(0).normalizedTime) && animator.GetCurrentAnimatorStateInfo(0).IsName(animation)));
+        return new WaitUntil(() => animator.GetCurrentAnimatorStateInfo(0).IsName(animation) && waitAnimation(animator.GetCurrentAnimatorStateInfo(0).normalizedTime));
     }
 
     public Vector2 Arc(Vector2 initial, Vector2 final, float h, float s)
@@ -82,16 +91,10 @@ public class GameManager : Singleton<GameManager> {
 
     public void Particle(string name, Vector2 position, bool active = true, Transform parent = null)
     {
-        GameObject gameObject = ObjectPool.Instance.PopFromPool(name, position, active, parent);
+        GameObject gameObject = ObjectPool.Ins.PopFromPool(name, position, active, parent);
         ParticleSystem particle = gameObject.GetComponent<ParticleSystem>();
-        Instance.StartCoroutine(Remover(gameObject, () => particle.isStopped));
+        Ins.StartCoroutine(Remover(gameObject, () => particle.isStopped));
     }
     #endregion
-
-    public static bool IsNear(Vector2 a, Vector2 b, float distance)
-    {
-        Vector2 diff = a - b;
-        return diff.x * diff.x + diff.y * diff.y <= distance * distance;
-    }
 
 }

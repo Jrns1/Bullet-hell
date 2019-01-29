@@ -8,7 +8,8 @@ public class CameraController : Singleton<CameraController>
 
     public float smoothTime;
     public float zoomDistance;
-    
+    public bool enableZoom = true;
+
     private const float IGNORED_SHAKING = 0.0005f;
     public Vector3 offset = new Vector3(0, 0, -300);
 
@@ -18,11 +19,10 @@ public class CameraController : Singleton<CameraController>
     
     // shake
     Vector3 shakingOffset;
-    float shakingMagnitude = 0f;
-    float originalMagnitude = 0f;
-    float goalTime;
+    float actualMagnitude = 0f;
+    float initialMagnitude = 0f;
+    float goalTime; 
     float shakingLast = 0f;
-    float angle;
 
     // limit
     float minX;
@@ -40,7 +40,9 @@ public class CameraController : Singleton<CameraController>
     void LateUpdate()
     {
         // Limit position
-        Vector3 desiredPosition = target.position + offset + (Camera.main.ScreenToWorldPoint(Input.mousePosition) - target.position).normalized * zoomDistance;
+        Vector3 desiredPosition = target.position + offset;
+        if (enableZoom)
+            desiredPosition += (Camera.main.ScreenToWorldPoint(Input.mousePosition) - target.position).normalized * zoomDistance;
 
         desiredPosition.x = Mathf.Clamp(desiredPosition.x, minX, maxX);
         desiredPosition.y = Mathf.Clamp(desiredPosition.y, minY, maxY);
@@ -48,15 +50,14 @@ public class CameraController : Singleton<CameraController>
         actualPosition = Vector3.SmoothDamp(actualPosition, desiredPosition, ref velocity, smoothTime);
         
         // Shake camera
-        if (shakingMagnitude > IGNORED_SHAKING)
+        if (actualMagnitude > IGNORED_SHAKING)
         {
-            angle += Random.Range(-200, 200) * Mathf.Deg2Rad;
-            shakingOffset = new Vector2(Mathf.Cos(angle) * shakingMagnitude, Mathf.Sin(angle) * shakingMagnitude);
+            shakingOffset = Random.insideUnitCircle * actualMagnitude;
 
             if (shakingLast > 0)
                 shakingLast -= Time.deltaTime;
             else
-                shakingMagnitude -= originalMagnitude * Time.fixedDeltaTime / goalTime;
+                actualMagnitude -= initialMagnitude * Time.deltaTime / goalTime;
         }
 
         Vector3 tempPosition = actualPosition + shakingOffset;
@@ -67,8 +68,8 @@ public class CameraController : Singleton<CameraController>
     public void Shake(float magnitude, float time, float _shakingLast = 0f)
     {
         shakingOffset = Vector3.zero;
-        originalMagnitude = magnitude;
-        shakingMagnitude = magnitude;
+        initialMagnitude = magnitude;
+        actualMagnitude = magnitude;
         goalTime = time;
         shakingLast = _shakingLast;
     }

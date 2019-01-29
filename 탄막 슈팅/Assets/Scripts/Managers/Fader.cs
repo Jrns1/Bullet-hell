@@ -5,42 +5,36 @@ using System.Collections;
 
 public class Fader : Singleton<Fader>
 {
-    delegate void ColorFunc(Color color);
-    
-    public Coroutine Fade(SpriteRenderer renderer, float time, float startingAlpha = 0, float endingAlpha = 1)
+    public Coroutine Fade(Graphic renderer, float time, float start, float end)
     {
-        return StartCoroutine(FadeCo(time,
-            startingAlpha, 
-            endingAlpha,
-            renderer.color,
-            (color) => renderer.color = color));
-    }
-
-    public Coroutine Fade(Image renderer, float time, float startingAlpha = 0, float endingAlpha = 1)
-    {
+        Color c = renderer.color;
         return StartCoroutine(FadeCo(
-            time, 
-            startingAlpha, 
-            endingAlpha,
-            renderer.color,
-            (color) => renderer.color = color));
+            (a) => renderer.color = new Color(c.r, c.g, c.b, a),
+            time, start, end
+            ));
     }
 
-    IEnumerator FadeCo(float time, float startingAlpha, float endingAlpha, Color color, ColorFunc SetColor)
+    public Coroutine Fade(SpriteRenderer renderer, float time, float start, float end)
     {
-        color.a = startingAlpha;
+        Color c = renderer.color;
+        return StartCoroutine(FadeCo(
+            (a) => renderer.color = new Color(c.r, c.g, c.b, a),
+            time, start, end
+            ));
+    }
+
+    public IEnumerator FadeCo(Action<float> Set, float time, float start, float end)
+    {
         float t = 0;
-        float changingAlpha = endingAlpha - startingAlpha;
+        float totalChange = time / (end - start);
 
         while (t < time)
         {
-            SetColor(color);
-            color.a = startingAlpha + t / time * changingAlpha;
+            Set(start + t / totalChange);
             t += Time.deltaTime;
             yield return null;
         }
 
-        color.a = endingAlpha;
-        SetColor(color);
+        Set(end);
     }
 }

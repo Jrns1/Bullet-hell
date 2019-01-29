@@ -34,12 +34,12 @@ public class Arc : MonoBehaviour
 
     private void Update()
     {
-        transform.position = GameManager.Instance.Arc(initial, final, h, s);
+        transform.position = GameManager.Ins.Arc(initial, final, h, s);
 
         s = (s + speed * Time.deltaTime);
         if (s > 1)
         {
-            GameManager.Instance.Particle("Dust", final);
+            GameManager.Ins.Particle("Dust", final);
 
             final = Random.insideUnitCircle * randomness;
             shadow.position = final;

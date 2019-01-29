@@ -7,37 +7,37 @@ using UnityEditor;
 public class Portal_Editor : Editor {
 
     Portal portal;
-    string regionName;
+    //string regionName;
 
     const float size = .5f;
 
     private void OnEnable()
     {
         portal = (Portal)target;
-        SetRegionName();
+        //SetRegionName();
     }
 
-    public override void OnInspectorGUI()
-    {
-        GUILayout.Label(regionName);
-        EditorGUILayout.Space();
+    //public override void OnInspectorGUI()
+    //{
+    //    GUILayout.Label(regionName);
+    //    EditorGUILayout.Space();
 
-        EditorGUI.BeginChangeCheck();
-        base.OnInspectorGUI();
-        if (EditorGUI.EndChangeCheck())
-            SetRegionName();
-    }
+    //    EditorGUI.BeginChangeCheck();
+    //    base.OnInspectorGUI();
+    //    if (EditorGUI.EndChangeCheck())
+    //        SetRegionName();
+    //}
 
     private void OnSceneGUI()
     {
         Handles.color = Color.green;
-        portal.Handle(ref portal.goal, size, "Move goal", target.name);
+        portal.Handle(ref portal.goal, size, "Move goal");
     }
 
-    void SetRegionName()
-    {
-        regionName = portal.regionNumber >= 0 ?
-            MapManager.Instance.regions[portal.regionNumber].regionName :
-            MapManager.Instance.scenes[-portal.regionNumber - 1];
-    }
+    //void SetRegionName()
+    //{
+    //    regionName = portal.regionNumber >= 0 ?
+    //        MapManager.Ins.regions[portal.regionNumber].regionName :
+    //        MapManager.Ins.scenes[-portal.regionNumber - 1];
+    //}
 }

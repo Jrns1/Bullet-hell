@@ -52,7 +52,7 @@ public class MonsterHealth : MonoBehaviour {
     IEnumerator KnockbackRemover()
     {
         isKnockbackBeingDone = true;
-        yield return new WaitUntil(() => (IsKnockbackCleared(rb2d.velocity)));
+        yield return new WaitUntil(() => IsKnockbackCleared(rb2d.velocity));
         isKnockbackBeingDone = false;
 
         movement.isMarching = true;
@@ -68,6 +68,6 @@ public class MonsterHealth : MonoBehaviour {
 
     protected virtual void Die()
     {
-        ObjectPool.Instance.PushToPool(gameObject);
+        ObjectPool.Ins.PushToPool(gameObject);
     }
 }

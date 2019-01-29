@@ -6,22 +6,22 @@ using UnityEngine;
 using System.Text;
 using System;
 
-public static class TestData
-{
-    public static int fileIndex;
+public class DataManager : Singleton<DataManager> {
 
-    public static void Save<T>(T data, string filePath)
+    public int fileIndex;
+
+    BinaryFormatter bf = new BinaryFormatter();
+    StringBuilder sb = new StringBuilder();
+
+    public void Save<T>(T data, string filePath)
     {
-        BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Create(filePath);
+        FileStream file = File.Create(ConvertValid(filePath));
         bf.Serialize(file, data);
         file.Close();
     }
 
-    public static bool Load<T>(string filePath, out T result)
+    public bool Load<T>(string filePath, out T result)
     {
-        BinaryFormatter bf = new BinaryFormatter();
-
         if (File.Exists(filePath))
         {
             FileStream file = File.Open(filePath, FileMode.Open);
@@ -35,15 +35,15 @@ public static class TestData
         return false;
     }
 
-    public static string DeathPath(string bossName)
+    public bool IsDead(string bossName)
     {
-        return ConvertValid("is" + bossName + "Dead");
+        bool dead = false;
+        Load<bool>(ConvertValid(bossName), out dead);
+        return dead;
     }
 
-    public static string ConvertValid(string partialPath)
+    string ConvertValid(string partialPath)
     {
-        StringBuilder sb = new StringBuilder();
-
         sb.Append(Application.persistentDataPath);
         sb.Append("\\");
         sb.Append(fileIndex.ToString());

@@ -20,7 +20,7 @@ public class Movement_Marching : MonoBehaviour
     {
         rb2d = GetComponent<Rigidbody2D>();
         if (!target)
-            target = GameManager.Instance.player;
+            target = GameManager.Ins.player;
         colliderSize = GetComponent<BoxCollider2D>().size;
     }
 
@@ -31,7 +31,7 @@ public class Movement_Marching : MonoBehaviour
 
     IEnumerator PathUpdater()
     {
-        yield return new WaitUntil(() => (PathFinder.Instance.isMapValid));
+        yield return new WaitUntil(() => PathFinder.Ins.isMapValid);
         while (isActiveAndEnabled)
         {
             RaycastHit2D wallRay = Physics2D.BoxCast(
@@ -40,7 +40,7 @@ public class Movement_Marching : MonoBehaviour
                 0,
                 target.position - transform.position,
                 Vector2.Distance(transform.position, target.position),
-                GameManager.Instance.layerMask_Wall);
+                GameManager.Ins.layerMask_Wall);
 
             if (!wallRay) // 플레이어와 몬스터 사이 장애물이 없는 경우
             {
@@ -72,7 +72,7 @@ public class Movement_Marching : MonoBehaviour
                 0,
                 path[1] - (Vector2)transform.position,
                 Vector2.Distance(transform.position, path[1]),
-                GameManager.Instance.layerMask_Wall);
+                GameManager.Ins.layerMask_Wall);
 
             if (!wallRay)
             {
@@ -84,9 +84,9 @@ public class Movement_Marching : MonoBehaviour
         {
             Vector2 currentWaypoint = path[currentIndex];
 
-            RaycastHit2D wallRay = Physics2D.Raycast(rb2d.position, ((Vector2)target.position - rb2d.position).normalized, minDstToTarget, GameManager.Instance.layerMask_Wall);
+            RaycastHit2D wallRay = Physics2D.Raycast(rb2d.position, ((Vector2)target.position - rb2d.position).normalized, minDstToTarget, GameManager.Ins.layerMask_Wall);
 
-            if (!wallRay.collider && GameManager.IsNear(target.position, transform.position, minDstToTarget) || // 최소 거리 도달
+            if (!wallRay.collider && (target.position - transform.position).sqrMagnitude < GameManager.Sqr(minDstToTarget) || // 최소 거리 도달
                 !isMarching)
             {
                 //rb2d.velocity = Vector2.zero;
@@ -94,7 +94,7 @@ public class Movement_Marching : MonoBehaviour
                 continue;
             }
 
-            if (GameManager.IsNear(rb2d.position, currentWaypoint, .05f)) // waypoint 도달
+            if ((rb2d.position - currentWaypoint).sqrMagnitude < .05f) // waypoint 도달
             {
                 rb2d.position = currentWaypoint;
 

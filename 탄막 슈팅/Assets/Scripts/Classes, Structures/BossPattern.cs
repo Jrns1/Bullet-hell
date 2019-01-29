@@ -9,6 +9,8 @@ public abstract class IPattern : MonoBehaviour
         get;
     }
 
+    public bool isActive = true;
+
     public abstract void TriggerPattern();
 }
 

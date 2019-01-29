@@ -1,31 +1,31 @@
 ﻿using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
-public class Shooter_Base : IPattern
+public class Shooter_Base<T> : IPattern
+    where T : IBulletData
 {
     public string bulletName;
-    public bool isShooting = true;
-
-    protected virtual int Length
-    {
-        get
-        {
-            return 0;
-        }
-    }
+    public T[] pattern;
 
     public override float Time
     {
         get
         {
             float t = 0;
-            for (int i = 0; i < Length; i++)
+            for (int i = 0; i < pattern.Length; i++)
             {
-                t += GetBulletDelay(i);
+                t += pattern[i].Delay;
             }
 
             return t;
+        }
+    }
+
+    protected GameObject Bullet
+    {
+        get
+        {
+            return ObjectPool.Ins.PopFromPool(bulletName, transform.position);
         }
     }
 
@@ -34,20 +34,17 @@ public class Shooter_Base : IPattern
         StartCoroutine(Attack());
     }
 
-    public virtual IEnumerator Attack()
+    private IEnumerator Attack()
     {
-
-        for (int i = 0; i < Length && isShooting; i++)
+        for (int i = 0; i < pattern.Length && isActive; i++)
         {
-            float delay = GetBulletDelay(i);
-            Shoot(i);
+            Shoot(pattern[i]);
 
-            if (delay > 0)
-                yield return new WaitForSeconds(delay);
+            if (pattern[i].Delay > 0)
+                yield return new WaitForSeconds(pattern[i].Delay);
         }
 
     }
 
-    protected virtual void Shoot(int index) { }
-    protected virtual float GetBulletDelay(int index) { return 0; }
+    protected virtual void Shoot(T data) { }
 }

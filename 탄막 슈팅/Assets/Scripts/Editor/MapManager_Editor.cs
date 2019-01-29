@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System;
+using UnityEditor.SceneManagement;
 
 [CustomEditor(typeof(MapManager))]
 public class MapManager_Editor : Editor {
@@ -14,7 +15,8 @@ public class MapManager_Editor : Editor {
 
     [SerializeField] Color[] monsterColors;
     int monsterSpeciesCnt;
-    const float size = .5f;
+    const float SIZE = .5f;
+    const float SQUARED_SIZE = .25f;
     const string savingName = "MapManager_Data";
 
 
@@ -52,6 +54,7 @@ public class MapManager_Editor : Editor {
 
     private void OnSceneGUI()
     {
+        
         Vector2 mousePos = GetWorldMousePosition();
 
         bool leftMouseClick = false;
@@ -73,7 +76,7 @@ public class MapManager_Editor : Editor {
                     else // Add region
                     {
                         Undo.RecordObject(manager, "Add region");
-                        EditorExtension.AddToArray<Region>(ref manager.regions, new Region("Region " + (manager.regions.Length + 1).ToString(), mousePos + Vector2.one, mousePos - Vector2.one));
+                        EditorExtension.AddToArray<Region>(ref manager.regions, new Region(/*"Region " + (manager.regions.Length + 1).ToString(), */mousePos + Vector2.one, mousePos - Vector2.one));
                         Select(manager.regions.Length - 1, -1);
                     }
                 }
@@ -97,17 +100,17 @@ public class MapManager_Editor : Editor {
                 // draw monsters
                 if (r == selectedRegionIndex && m == selectedMonIndex)
                 {
-                    Handles.color = Color.yellow;
+                    Handles.color = Color.red;
                 }
                 else
                 {
                     Handles.color = monsterColors[(int)region.monsters[m].name];
                 }
 
-                manager.Handle(ref region.monsters[m].spawnPoint, size, "Move monster", savingName);
+                manager.Handle(ref region.monsters[m].spawnPoint, SIZE, "Move monster");
 
                 // handle click
-                if (GameManager.IsNear(region.monsters[m].spawnPoint, mousePos, size))
+                if ((region.monsters[m].spawnPoint - mousePos).sqrMagnitude < SQUARED_SIZE)
                 {
                     if (leftMouseClick)
                     {
@@ -125,30 +128,29 @@ public class MapManager_Editor : Editor {
             Vector2 UR = region.upperRight;
             Vector2 LL = region.lowerLeft;
 
-            if ((GameManager.IsNear(region.upperRight, mousePos, size) || // delete region
-                GameManager.IsNear(region.lowerLeft, mousePos, size)) &&
-                rightMouseClick)
+            if ((region.upperRight - mousePos).sqrMagnitude < SQUARED_SIZE || 
+                (region.lowerLeft - mousePos).sqrMagnitude < SQUARED_SIZE)
             {
-                Undo.RecordObject(manager, "Delete region");
-                EditorExtension.DeleteFromArray<Region>(ref manager.regions, r);
-                continue;
-            }
-
-            if ((GameManager.IsNear(region.upperRight, mousePos, size) ||
-                GameManager.IsNear(region.lowerLeft, mousePos, size))
-                && leftMouseClick)
-            {
-                Select(r, -1);
+                if (leftMouseClick) // select the region
+                {
+                    Select(r, -1);
+                }
+                if (rightMouseClick) // delete the region
+                {
+                    Undo.RecordObject(manager, "Delete region");
+                    EditorExtension.DeleteFromArray<Region>(ref manager.regions, r);
+                    continue;
+                }
             }
 
             // draw camera rect
             if (UR.x < LL.x || UR.y < LL.y)
                 Handles.color = Color.cyan;
             else
-                Handles.color = selectedRegionIndex == r ? Color.yellow : Color.red;
+                Handles.color = selectedRegionIndex == r ? Color.red : Color.yellow;
 
-            manager.Handle(ref manager.regions[r].lowerLeft, size, "Change camera rect", savingName);
-            manager.Handle(ref manager.regions[r].upperRight, size, "Change camera rect", savingName);
+            manager.Handle(ref manager.regions[r].lowerLeft, SIZE, "Change camera rect");
+            manager.Handle(ref manager.regions[r].upperRight, SIZE, "Change camera rect");
 
             Handles.DrawPolyLine(new Vector3[]
             {
@@ -165,8 +167,8 @@ public class MapManager_Editor : Editor {
     {
         base.OnInspectorGUI();
 
-        if (GUILayout.Button("Save"))
-            this.Save(savingName);
+        //if (GUILayout.Button("Save"))
+        //    this.Save(savingName);
 
         GUILayout.Space(10);
         GUILayout.Label("Color to display monsters");
@@ -197,6 +199,12 @@ public class MapManager_Editor : Editor {
             MonsterSpawnData[] monsterList = manager.regions[selectedRegionIndex].monsters;
             monsterList[selectedMonIndex].name = (MonsterName)EditorGUILayout.EnumPopup(monsterList[selectedMonIndex].name);
         }
+
+        if (GUI.changed)
+        {
+            EditorUtility.SetDirty(manager);
+            EditorSceneManager.MarkSceneDirty(manager.gameObject.scene);
+        }
     }
 
     Vector2 GetWorldMousePosition()
@@ -215,115 +223,3 @@ public class MapManager_Editor : Editor {
         Repaint();
     }
 }
-    /*
-    MapManager mapManager;
-
-    List<MonsterSpawnData> monsterList;
-    int currentRegionNum = 0;
-    int selectedIndex;
-
-    const float size = .5f;
-
-    private void OnEnable()
-    {
-        mapManager = (MapManager)target;
-        if (mapManager.regions == null)
-        {
-            mapManager.regions = new Region[1];
-            monsterList = new List<MonsterSpawnData>() { new MonsterSpawnData() };
-            selectedIndex = 0;
-            SaveResult();
-        }
-        else
-        {
-            ChangeRegion();
-        }
-    }
-
-    public override void OnInspectorGUI()
-    {
-        base.OnInspectorGUI();
-        return;
-
-        // 지역 선택
-        int newRegionNum = EditorGUILayout.IntSlider(currentRegionNum, 0, mapManager.regions.Length - 1);
-        if (currentRegionNum != newRegionNum)
-        {
-            currentRegionNum = newRegionNum;
-            ChangeRegion();
-        }
-
-        GUILayout.Space(30);
-
-        // 지역 입장 트리거 설정
-
-
-
-        GUILayout.Space(30);
-
-        // 몬스터 종 설정
-        MonsterSpawnData selected = monsterList[selectedIndex];
-        monsterList[selectedIndex] = new MonsterSpawnData(selected.spawnPoint, (MonsterName)EditorGUILayout.EnumPopup(selected.name));
-
-        // 몬스터 추가 및 초기화
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Add Monster"))
-        {
-            AddMonster();
-            SceneView.RepaintAll();
-        }
-        if (GUILayout.Button("Reset"))
-        {
-            monsterList = new List<MonsterSpawnData>() { new MonsterSpawnData() };
-            SaveResult();
-        }
-        GUILayout.EndHorizontal();
-    }
-
-    private void OnSceneGUI()
-    {
-        //DrawMonsters();
-    }
-
-    void DrawMonsters()
-    {
-        Handles.color = Color.red;
-        for (int i = 0; i < monsterList.Count; i++)
-        {
-            if (i == selectedIndex)
-                Handles.color = Color.cyan;
-            else
-                Handles.color = Color.blue;
-
-            Vector2 newPos = Handles.FreeMoveHandle(monsterList[i].spawnPoint, Quaternion.identity, size, Vector2.one, Handles.CylinderHandleCap);
-            if (monsterList[i].spawnPoint != newPos)
-            {
-                selectedIndex = i;
-                monsterList[i] = new MonsterSpawnData(newPos, monsterList[i].name);
-                SaveResult();
-            }
-        }
-    }
-
-    void ChangeRegion()
-    {
-        selectedIndex = 0;
-        monsterList = new List<MonsterSpawnData>(mapManager.regions[currentRegionNum].monsters);
-        SaveResult();
-    }
-
-    void SaveResult()
-    {
-        mapManager.regions[currentRegionNum].monsters = new MonsterSpawnData[monsterList.Count];
-        for (int i = 0; i < monsterList.Count; i++)
-        {
-            mapManager.regions[currentRegionNum].monsters[i] = monsterList[i];
-        }
-    }
-
-    void AddMonster()
-    {
-        monsterList.Add(new MonsterSpawnData(Vector2.zero, 0)); // HandleUtility.GUIPointToWorldRay(new Vector2(Screen.width/2, Screen.height/2)).origin
-    }
-}
-*/

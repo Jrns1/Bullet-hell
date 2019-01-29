@@ -6,9 +6,6 @@ using UnityEngine;
 public enum MonsterName
 {
     Test,
-    Test_Bouncy,
-    Test_Burst,
-    Test_Bomber,
     Test_Triple
 }
 
@@ -37,15 +34,15 @@ public struct BossSpawnData
 [System.Serializable]
 public struct Region
 {
-    public string regionName;
+    //public string regionName;
     public Vector2 upperRight;
     public Vector2 lowerLeft;
     public bool isDiscovered;
     public MonsterSpawnData[] monsters;
 
-    public Region(string _regionName, Vector2 _upperRight, Vector2 _lowerLeft)
+    public Region(/*string _regionName, */Vector2 _upperRight, Vector2 _lowerLeft)
     {
-        regionName = _regionName;
+        //regionName = _regionName;
         upperRight = _upperRight;
         lowerLeft = _lowerLeft;
         isDiscovered = false;

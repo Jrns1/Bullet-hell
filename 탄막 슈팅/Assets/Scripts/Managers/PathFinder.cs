@@ -27,7 +27,7 @@ public class PathFinder : Singleton<PathFinder>
     
     public void SetMap()
     {
-        MapManager mapManager = MapManager.Instance;
+        MapManager mapManager = MapManager.Ins;
         bottomLeft = Vector3Int.RoundToInt(mapManager.regions[mapManager.currentRegionNum].lowerLeft);
         Vector3Int topRight = Vector3Int.RoundToInt(mapManager.regions[mapManager.currentRegionNum].upperRight);
 
@@ -66,7 +66,7 @@ public class PathFinder : Singleton<PathFinder>
     {
         if (map == null || !isMapValid)
         {
-            PathRequestManager.Instance.FinishedProcessingPath(null, false);
+            PathRequestManager.Ins.FinishedProcessingPath(null, false);
             yield break;
         }
 
@@ -77,7 +77,7 @@ public class PathFinder : Singleton<PathFinder>
         HeapNode targetNode = GetNodeInWorldPos(targetPos);
         if (startNode == null || targetNode == null)
         {
-            PathRequestManager.Instance.FinishedProcessingPath(null, false);
+            PathRequestManager.Ins.FinishedProcessingPath(null, false);
             yield break;
         }
 
@@ -127,7 +127,7 @@ public class PathFinder : Singleton<PathFinder>
         {
             waypoints = RetracePath(startNode, targetNode);
         }
-        PathRequestManager.Instance.FinishedProcessingPath(waypoints, pathSuccess);
+        PathRequestManager.Ins.FinishedProcessingPath(waypoints, pathSuccess);
     }
 
     HeapNode GetNodeInWorldPos(Vector3 worldPos)

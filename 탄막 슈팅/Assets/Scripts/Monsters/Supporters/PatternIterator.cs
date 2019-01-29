@@ -14,7 +14,7 @@ public class PatternIterator : MonoBehaviour {
 
     IEnumerator AttackIterator()
     {
-        yield return new WaitUntil(() => (PathFinder.Instance.isMapValid));
+        yield return new WaitUntil(() => PathFinder.Ins.isMapValid);
         while (isActiveAndEnabled)
         {
             pattern.TriggerPattern();
